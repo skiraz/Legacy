@@ -1,4 +1,4 @@
-from main import App
+from legacyGUI import App
 from tkinter import *
 from tkinter.ttk import *
  

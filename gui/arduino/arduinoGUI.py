@@ -1,6 +1,8 @@
-from tkinter.simpledialog import askinteger
-from tkinter import *
-from tkinter import messagebox
+from customtkinter import CTkButton as Button
+from customtkinter import CTkToplevel as Toplevel
+import sys
+sys.path.append(r"..")
+from gui.loading_Window import LoadingWindow
 import pyfirmata
 
 class arduinoWindow():
@@ -13,6 +15,8 @@ class arduinoWindow():
 
     def init_pyfirmat(self):
         # TODO: grab the serial port the arduino is on automatically  
+        # TODO: initializing the board takes alot of time, try to 
+        # make a loading screen
         self.board = pyfirmata.Arduino('COM4')
 
 
@@ -24,11 +28,20 @@ class arduinoWindow():
         self.window.protocol("WM_DELETE_WINDOW", self.on_window_close)
 
     def run(self):
+        
         if self.window is None:
             self.create_window()
+        # self.window.update()
+        # lw=LoadingWindow(self.window)
+        # lw.start_loading()
+        # print(42324)
         self.init_pyfirmat()
+        # print(42324)
+        # lw.close_loading()
+        print(24242424)
         self.add_led_buttons()
         self.window.mainloop()
+        
     def hand_gesture_led(self):
         def hands():
             pass
@@ -46,9 +59,12 @@ class arduinoWindow():
     
     def add_led_buttons(self):
         # Create buttons for each LED
+        self.Buttons = []
         for led_id in range(2, 7):  # Assuming you have 3 LEDs (change the range accordingly)
             self.led_states[led_id] = 0  # Initialize LED states to off
-            button = Button(self.window,text=f"LED {led_id}", command=lambda id=led_id: self.toggle_led(id))
+            button = Button(self.window,text=f"LED {led_id}", command=lambda id=led_id: self.toggle_led(id),border_width=3,
+                            hover_color="red")
+            self.Buttons.append(button)
             button.pack()
 
     def toggle_led(self, led_id):

@@ -1,22 +1,21 @@
-from tkinter.simpledialog import askinteger
-from tkinter import *
-from tkinter import messagebox
-from arduino.gui import arduinoWindow
+from customtkinter import *
+from customtkinter import CTkButton as Button
+from arduino.arduinoGUI import arduinoWindow
 
 
 class App():
     def __init__(self,width = 600,height = 600):
-      self.window = Tk()
+      self.window = CTk()
       self.width = width
       self.height = height
       self.window.geometry(f"{self.width}x{self.height}")
       self.window.title("legacy")
-      self.ardrun = 0 
+      
 
 
     def run(self):
          self.arduino_Btn()
-         mainloop()
+         self.window.mainloop()
       
       
     

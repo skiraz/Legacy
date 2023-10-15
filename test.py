@@ -1,29 +1,85 @@
 import tkinter as tk
+from tkinter import ttk
+from tkinter import filedialog
 
-class MainWindow:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Main Window")
-        
-        self.open_child_button = tk.Button(root, text="Open Child Window", command=self.open_child_window)
-        self.open_child_button.pack()
 
-        self.child_windows = []
+class Tab:
+    def __init__(self, notebook:ttk.Notebook):
+        self.filename = None
+        self.notebook = notebook
 
-    def open_child_window(self):
-        child_window = tk.Toplevel(self.root)
-        child_window.title("Child Window")
+        self.text_widget = tk.Text(self.notebook)
+        self.text_widget.bind("<Control-o>", self.open)
+        self.text_widget.bind("<Control-s>", self.save)
+        self.text_widget.bind("<Control-Shift-S>", self.saveas)
+        self.notebook.add(self.text_widget, text="The tab name")
 
-        close_button = tk.Button(child_window, text="Close", command=lambda: self.close_child_window(child_window))
-        close_button.pack()
+    def open(self, _=None):
+        filename = filedialog.askopenfilename()
+        if filename != "":
+            with open(filename, "r") as file:
+                data = file.read()
+            self.text_widget.delete("0.0", "end")
+            self.text_widget.insert("end", data)
+            self.filename = filename
+        return "break"
 
-        self.child_windows.append(child_window)
+    def save(self, _=None):
+        if self.filename is None:
+            self.saveas()
+        else:
+            self._save()
+        return "break"
 
-    def close_child_window(self, child_window):
-        child_window.destroy()
-        self.child_windows.remove(child_window)
+    def saveas(self, _=None):
+        filename = filedialog.asksaveasfilename()
+        if filename == "":
+            return "break"
+        self.filename = filename
+        self._save()
+
+    def _save(self):
+        assert self.filename is not None, "self.filename shouldn't be None"
+        data = self.text_widget.get("0.0", "end")
+        with open(self.filename, "w") as file:
+            file.write(data)
+
+
+class App:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.new_tab_button = tk.Button(self.root, text="New tab", command=self.add_new_tab)
+        self.new_tab_button.pack()
+        self.open_button = tk.Button(self.root, text="Open file", command=self.open_file)
+        self.open_button.pack()
+        self.save_button = tk.Button(self.root, text="Save file", command=self.save_file)
+        self.save_button.pack()
+        self.notebook = ttk.Notebook(self.root)
+        self.notebook.pack()
+        self.tabs = []
+
+    def add_new_tab(self):
+        tab = Tab(self.notebook)
+        self.tabs.append(tab)
+
+    def get_current_tab(self):
+        # This code gets the currently selected tab
+        idx = self.notebook.index(self.notebook.select())
+        tab = self.tabs[idx]
+        return tab
+
+    def open_file(self):
+        tab = self.get_current_tab()
+        tab.open() # Call `open` on the tab
+
+    def save_file(self):
+        tab = self.get_current_tab()
+        tab.save() # Call `save` on the tab
+
+    def mainloop(self):
+        self.root.mainloop()
+
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    main_window = MainWindow(root)
-    root.mainloop()
+    app = App()
+    app.mainloop()
